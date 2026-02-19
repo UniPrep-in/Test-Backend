@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt")
 const UserModel = require("../models/User");
+const jwt = require("jsonwebtoken");
 
 const signup = async(req, res) => {
     try{
@@ -26,6 +27,65 @@ const signup = async(req, res) => {
     }
 }
 
+const login = async (req, res) => {
+    try {
+        const { email, phoneNumber, password } = req.body;
+
+        if ((!email && !phoneNumber) || !password) {
+            return res.status(400).json({
+                message: "Email or phone number and password are required",
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({
+            $or: [
+                { email: email },
+                { phoneNumber: phoneNumber }
+            ]
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                message: "Invalid credentials",
+                success: false
+            });
+        }
+        const jwtToken = jwt.sign(
+            {email : user.email, _id : user._id},
+            process.env.JWT_SECRET,
+            {expiresIn : "24h"}
+        )
+
+        return res.status(200).json({
+            message: "Login Successful",
+            success: true,
+            token: jwtToken,
+            user: {
+                id: user._id,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                name: user.name
+            }
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: "Internal Server Error",
+            success: false
+        });
+    }
+};
+
 module.exports = {
-    signup
+    signup,
+    login
 }
