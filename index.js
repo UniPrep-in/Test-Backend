@@ -18,8 +18,6 @@ app.get("/ping", (req, res) => {
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/auth", auth);
-app.use("/course", courses);
-app.use("/dashboard", dashboard);
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);

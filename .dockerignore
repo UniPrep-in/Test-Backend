@@ -1,0 +1,18 @@
+# VCS
+.git
+.gitignore
+
+# Dependencies
+node_modules
+__pycache__
+venv
+
+# Logs and temporary files
+npm-debug.log*
+**/logs
+*.cache
+*.tmp
+
+# Sensitive files
+.env
+.aws
