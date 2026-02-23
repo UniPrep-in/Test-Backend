@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt")
 const UserModel = require("../models/User");
+const DashboardModel = require("../models/Dashboard");
 const jwt = require("jsonwebtoken");
 
 const signup = async(req, res) => {
@@ -13,6 +14,11 @@ const signup = async(req, res) => {
         const userModel = new UserModel({ name, email, password, phoneNumber });
         userModel.password = await bcrypt.hash(password, 10);
         await userModel.save();
+
+        // Automatically create Dashboard for the new user
+        const dashboard = new DashboardModel({ email });
+        await dashboard.save();
+
         res.status(201)
             .json({
                 message : "Signup Successful", 
